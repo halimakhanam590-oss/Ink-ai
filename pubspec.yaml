@@ -1,5 +1,5 @@
 name: inkai_pro
-description: InkAI Pro Tattoo Generator
+description: InkAI Pro Tattoo Generator with API
 publish_to: 'none'
 version: 1.0.0+1
 environment:
@@ -7,5 +7,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.0
 flutter:
   uses-material-design: true
