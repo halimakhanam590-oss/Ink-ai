@@ -7,10 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const InkAIApp());
-}
+void main() { WidgetsFlutterBinding.ensureInitialized(); runApp(const InkAIApp()); }
 
 class InkAIApp extends StatelessWidget {
   const InkAIApp({super.key});
@@ -33,9 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isProUser = false;
   Uint8List? _proImage;
   String? _freeImageUrl;
-  final String stabilityApiKey = "sk-REPLACE_WITH_YOUR_KEY";
-  final List<String> _styles = ["Tribal", "Minimalist", "Realistic", "Japanese", "Blackwork"];
 
+  // ENV THEKE API NIBE - CODE E KEY BOSATE HOBE NA
+  static const String stabilityApiKey = String.fromEnvironment('STABILITY_API_KEY', defaultValue: '');
+
+  final List<String> _styles = ["Tribal", "Minimalist", "Realistic", "Japanese", "Blackwork"];
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   late StreamSubscription<List<PurchaseDetails>> _subscription;
   List<ProductDetails> _products = [];
@@ -43,22 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final String _kProId = "inkai_pro_monthly";
 
   @override
-  void initState() {
-    super.initState();
-    _loadProStatus();
-    _initStore();
-  }
+  void initState() { super.initState(); _loadProStatus(); _initStore(); }
 
-  Future<void> _loadProStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => isProUser = prefs.getBool('isPro')?? false);
-  }
-
-  Future<void> _setProStatus(bool v) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isPro', v);
-    setState(() => isProUser = v);
-  }
+  Future<void> _loadProStatus() async { final prefs = await SharedPreferences.getInstance(); setState(() => isProUser = prefs.getBool('isPro')?? false); }
+  Future<void> _setProStatus(bool v) async { final prefs = await SharedPreferences.getInstance(); await prefs.setBool('isPro', v); setState(() => isProUser = v); }
 
   Future<void> _initStore() async {
     if (!await _inAppPurchase.isAvailable()) return;
@@ -77,9 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _buyPro() async {
-    if (_products.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Upload AAB to Play Console first!"))); return; }
-    final param = PurchaseParam(productDetails: _products.first);
-    await _inAppPurchase.buyNonConsumable(purchaseParam: param);
+    if (_products.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("AAB Play Console e upload koro first!"))); return; }
+    await _inAppPurchase.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: _products.first));
   }
 
   @override
@@ -93,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _generatePro() async {
+    if (stabilityApiKey.isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API Key missing in Codemagic!"), backgroundColor: Colors.red)); return; }
     setState(() => _isGenerating = true);
     try {
       final res = await http.post(Uri.parse("https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"),
